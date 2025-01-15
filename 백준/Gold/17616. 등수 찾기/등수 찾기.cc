@@ -1,55 +1,50 @@
-#include<bits/stdc++.h>
-
+#include <bits/stdc++.h>
 using namespace std;
 
 int N, M, X;
-vector<vector<int>> fwd(10'001);
-vector<vector<int>> rvs(10'001);
-bool visited[10'001];
+vector<vector<int>> fwd(100001);
+vector<vector<int>> rvs(100001);
+bool visited[100001];
 
-int main(){
+int bfs(vector<vector<int>> &graph, int start) {
+    fill(visited, visited + N + 1, false); // visited 초기화
+    queue<int> q;
+    int cnt = 0;
+
+    q.push(start);
+    visited[start] = true;
+
+    while (!q.empty()) {
+        int cur = q.front();
+        q.pop();
+        cnt++;
+
+        for (int next : graph[cur]) {
+            if (!visited[next]) {
+                visited[next] = true;
+                q.push(next);
+            }
+        }
+    }
+    return cnt;
+}
+
+int main() {
     cin >> N >> M >> X;
 
-    for(int i = 0; i < M;i++){
-        int to, from;
-        cin >> to >> from;
-        fwd[from].push_back(to);
-        rvs[to].push_back(from);
-    }
-    int nextCnt = 0;
-
-    // BFS forward
-    queue<int> q;
-    q.push(X);
-    while(!q.empty()){
-        int cur = q.front();
-        q.pop();
-        nextCnt++;
-        visited[cur] = true;
-        for(int next : fwd[cur]){
-            if(visited[next]) continue;
-            visited[next] = true;
-            q.push(next);
-        }
+    for (int i = 0; i < M; i++) {
+        int from, to;
+        cin >> from >> to;
+        fwd[from].push_back(to); // 정방향 그래프
+        rvs[to].push_back(from); // 역방향 그래프
     }
 
-    // BFS reverse
-    for(int i = 1; i<= N;i++){
-        visited[i] = false;
-    }
-    int prevCnt = 0.;
-    q.push(X);
-    while(!q.empty()){
-        int cur = q.front();
-        q.pop();
-        prevCnt++;
-        visited[cur] = true;
-        for(int next : rvs[cur]){
-            if(visited[next]) continue;
-            visited[next] = true;
-            q.push(next);
-        }
-    }
-    cout << nextCnt << " " << N + 1 - prevCnt << endl;
+    int nextCnt = bfs(fwd, X);
+    int prevCnt = bfs(rvs, X);
+
+    int U = prevCnt;         
+    int V = N - nextCnt + 1; 
+    cout << U << " " << V << endl;
+
     return 0;
 }
